@@ -10,27 +10,23 @@ struct client_info* client_info_alloc(int s, int c)
 	return ci;
 }
 
-void command_pwd(struct packet* shp, struct packet* data, int sfd_client, char* lpwd)
+void command_pwd(int sfd_client, struct packet* shp, char* lpwd)
 {
 	int x;
 	shp->type = DATA;
 	strcpy(shp->buffer, lpwd);
-	data = htonp(shp);
-	if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-		er("send()", x);
+	send_packet(sfd_client, shp);
 }
 
-void command_cd(struct packet* shp, struct packet* data, int sfd_client, char* message)
+void command_cd(int sfd_client, struct packet* shp, char* message)
 {
 	int x;
 	shp->type = INFO;
 	strcpy(shp->buffer, message);
-	data = htonp(shp);
-	if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-		er("send()", x);
+	send_packet(sfd_client, shp);
 }
 
-void command_ls(struct packet* shp, struct packet* data, int sfd_client, char* lpwd)
+void command_ls(int sfd_client, struct packet* shp, char* lpwd)
 {
 	int x;
 	shp->type = DATA;
@@ -41,14 +37,12 @@ void command_ls(struct packet* shp, struct packet* data, int sfd_client, char* l
 	while(e = readdir(d))
 	{
 		sprintf(shp->buffer, "%s\t%s", e->d_type == 4 ? "DIR:" : e->d_type == 8 ? "FILE:" : "UNDEF:", e->d_name);
-		data = htonp(shp);
-		if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-			er("send()", x);
+		send_packet(sfd_client, shp);
 	}
-	send_EOT(shp, data, sfd_client);
+	send_EOT(sfd_client, shp);
 }
 
-void command_get(struct packet* shp, struct packet* data, int sfd_client)
+void command_get(int sfd_client, struct packet* shp)
 {
 	int x;
 	FILE* f = fopen(shp->buffer, "rb");	// Yo!
@@ -56,19 +50,17 @@ void command_get(struct packet* shp, struct packet* data, int sfd_client)
 	shp->comid = GET;
 	strcpy(shp->buffer, f ? "File found; processing" : "Error opening file.");
 	//printpacket(shp, HP);
-	data = htonp(shp);
-	if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-		er("send()", x);
+	send_packet(sfd_client, shp);
 	if(f)
 	{
 		shp->type = DATA;
-		send_file(shp, data, sfd_client, f);
+		send_file(sfd_client, shp, f);
 		fclose(f);
 	}
-	send_EOT(shp, data, sfd_client);
+	send_EOT(sfd_client, shp);
 }
 
-void command_put(struct packet* shp, struct packet* data, int sfd_client)
+void command_put(int sfd_client, struct packet* shp)
 {
 	int x;
 	FILE* f = fopen(shp->buffer, "wb");
@@ -76,17 +68,15 @@ void command_put(struct packet* shp, struct packet* data, int sfd_client)
 	shp->comid = PUT;
 	strcpy(shp->buffer, f ? "Everything in order; processing" : "Error opening file for writing on server side.");
 	//printpacket(shp, HP);
-	data = htonp(shp);
-	if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-		er("send()", x);
+	send_packet(sfd_client, shp);
 	if(f)
 	{
-		receive_file(shp, data, sfd_client, f);
+		receive_file(sfd_client, shp, f);
 		fclose(f);
 	}
 }
 
-void command_mkdir(struct packet* shp, struct packet* data, int sfd_client)
+void command_mkdir(int sfd_client, struct packet* shp)
 {
 	char message[LENBUFFER];
 	DIR* d = opendir(shp->buffer);
@@ -105,12 +95,10 @@ void command_mkdir(struct packet* shp, struct packet* data, int sfd_client)
 	int x;
 	shp->type = INFO;
 	strcpy(shp->buffer, message);
-	data = htonp(shp);
-	if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-		er("send()", x);
+	send_packet(sfd_client, shp);
 }
 
-void command_rget(struct packet* shp, struct packet* data, int sfd_client)
+void command_rget(int sfd_client, struct packet* shp)
 {
 	static char lpwd[LENBUFFER];
 	if(!getcwd(lpwd, sizeof lpwd))
@@ -126,33 +114,21 @@ void command_rget(struct packet* shp, struct packet* data, int sfd_client)
 			shp->type = REQU;
 			shp->comid = LMKDIR;
 			strcpy(shp->buffer, e->d_name);
-			data = htonp(shp);
-			//fprintf(stderr, "LMKDIR: e->d_name = <%s>\n", e->d_name);
-			//printpacket(shp, HP);
-			if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-				er("send()", x);
+			send_packet(sfd_client, shp);
 			
 			shp->type = REQU;
 			shp->comid = LCD;
 			strcpy(shp->buffer, e->d_name);
-			data = htonp(shp);
-			//fprintf(stderr, "LCD: e->d_name = <%s>\n", e->d_name);
-			//printpacket(shp, HP);
-			if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-				er("send()", x);
+			send_packet(sfd_client, shp);
 			if((x = chdir(e->d_name)) == -1)
 				er("chdir()", x);
 
-			command_rget(shp, data, sfd_client);
+			command_rget(sfd_client, shp);
 			
 			shp->type = REQU;
 			shp->comid = LCD;
 			strcpy(shp->buffer, "..");
-			data = htonp(shp);
-			//fprintf(stderr, "LCD: <..>\n");
-			//printpacket(shp, HP);
-			if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-				er("send()", x);
+			send_packet(sfd_client, shp);
 			if((x = chdir("..")) == -1)
 				er("chdir()", x);
 		}
@@ -161,16 +137,10 @@ void command_rget(struct packet* shp, struct packet* data, int sfd_client)
 			shp->type = REQU;
 			shp->comid = GET;
 			strcpy(shp->buffer, e->d_name);
-			data = htonp(shp);
-			//fprintf(stderr, "GET: e->d_name = <%s>\n", e->d_name);
-			//printpacket(shp, HP);
-			if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-				er("send()", x);
-			if((x = recv(sfd_client, data, size_packet, 0)) == 0)
-				er("recv()", x);
-			shp = ntohp(data);
+			send_packet(sfd_client, shp);
+			recv_packet(sfd_client, shp);
 			if(shp->type == REQU && shp->comid == GET)
-				command_get(shp, data, sfd_client);
+				command_get(sfd_client, shp);
 		}
 	closedir(d);
 }

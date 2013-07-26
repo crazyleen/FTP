@@ -17,19 +17,19 @@ struct command* userinputtocommand(char [LENUSERINPUT]);
 
 void printcommand(struct command*);
 
-void command_pwd(struct packet*, struct packet*, int);
+void command_pwd(int, struct packet*);
 void command_lcd(char*);
-void command_cd(struct packet*, struct packet*, int, char*);
+void command_cd(int, struct packet*, char*);
 void command_lls(char*);
-void command_ls(struct packet*, struct packet*, int);
-void command_get(struct packet*, struct packet*, int, char*);
-void command_put(struct packet*, struct packet*, int, char*);
-void command_mget(struct packet*, struct packet*, int, int, char**);
-void command_mput(struct packet*, struct packet*, int, int, char**);
-void command_mgetwild(struct packet*, struct packet*, int);
-void command_mputwild(struct packet*, struct packet*, int, char*);
+void command_ls(int, struct packet*);
+void command_get(int, struct packet*, char*);
+void command_put(int, struct packet*, char*);
+void command_mget(int, struct packet*, int, char**);
+void command_mput(int, struct packet*, int, char**);
+void command_mgetwild(int, struct packet*);
+void command_mputwild(int, struct packet*, char*);
 void command_lmkdir(char*);
-void command_mkdir(struct packet*, struct packet*, int, char*);
-void command_rget(struct packet*, struct packet*, int);
-void command_rput(struct packet*, struct packet*, int);
+void command_mkdir(int, struct packet*, char*);
+void command_rget(int, struct packet*);
+void command_rput(int, struct packet*);
 

@@ -2,6 +2,7 @@
 
 static size_t size_packet = sizeof(struct packet);
 
+
 void set0(struct packet* p)
 {
 	memset(p, 0, sizeof(struct packet));
@@ -9,30 +10,20 @@ void set0(struct packet* p)
 
 struct packet* ntohp(struct packet* np)
 {
-	struct packet* hp = (struct packet*) malloc(size_packet);
-	memset(hp, 0, size_packet);
-	
-	hp->conid = ntohs(np->conid);
-	hp->type = ntohs(np->type);
-	hp->comid = ntohs(np->comid);
-	hp->datalen = ntohs(np->datalen);
-	memcpy(hp->buffer, np->buffer, LENBUFFER);
-	
-	return hp;	
+	np->conid = ntohs(np->conid);
+	np->type = ntohs(np->type);
+	np->comid = ntohs(np->comid);
+	np->datalen = ntohs(np->datalen);
+	return np;
 }
 
 struct packet* htonp(struct packet* hp)
 {
-	struct packet* np = (struct packet*) malloc(size_packet);
-	memset(np, 0, size_packet);
-	
-	np->conid = ntohs(hp->conid);
-	np->type = ntohs(hp->type);
-	np->comid = ntohs(hp->comid);
-	np->datalen = ntohs(hp->datalen);
-	memcpy(np->buffer, hp->buffer, LENBUFFER);
-	
-	return np;
+	hp->conid = ntohs(hp->conid);
+	hp->type = ntohs(hp->type);
+	hp->comid = ntohs(hp->comid);
+	hp->datalen = ntohs(hp->datalen);
+	return hp;
 }
 
 void printpacket(struct packet* p, int ptype)
@@ -54,3 +45,27 @@ void printpacket(struct packet* p, int ptype)
 	fflush(stdout);
 }
 
+
+/**
+ * if error occur, exit(-1)
+ */
+void send_packet(int sfd, struct packet* hp)
+{
+	int x;
+	struct packet pkt;
+	memcpy(&pkt, hp, size_packet);
+	if((x = send(sfd, htonp(&pkt), size_packet, 0)) != size_packet)
+		er("send()", x);
+}
+
+/**
+ * Returns the number read or exit(-1) for errors.
+ */
+int recv_packet(int sfd, struct packet* pkt)
+{
+	int x;
+	if((x = recv(sfd, pkt, size_packet, 0)) <= 0)
+		er("recv()", x);
+	ntohp(pkt);
+	return x;
+}

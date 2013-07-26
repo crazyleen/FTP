@@ -50,8 +50,8 @@ int main(void)
 void* serve_client(void* info)
 {
 	int sfd_client, connection_id, x;
-	struct packet* data = (struct packet*) malloc(size_packet);
-	struct packet* shp;
+	struct packet data;
+	struct packet shp;
 	char lpwd[LENBUFFER];
 	struct client_info* ci = (struct client_info*) info;
 	sfd_client = ci->sfd;
@@ -59,77 +59,65 @@ void* serve_client(void* info)
 	
 	while(1)
 	{
-		if((x = recv(sfd_client, data, size_packet, 0)) == 0)
+		if((x = recv(sfd_client, &shp, size_packet, 0)) == 0)
 		{
 			fprintf(stderr, "client closed/terminated. closing connection.\n");
 			break;
 		}
+		ntohp(&shp);
 		
-		shp = ntohp(data);
-		
-		if(shp->type == TERM)
+		if(shp.type == TERM)
 			break;
 		
-		if(shp->conid == -1)
-			shp->conid = connection_id;
+		if(shp.conid == -1)
+			shp.conid = connection_id;
 		
-		if(shp->type == REQU)
+		if(shp.type == REQU)
 		{
-			switch(shp->comid)
+			switch(shp.comid)
 			{
 				case PWD:
 					if(!getcwd(lpwd, sizeof lpwd))
 						er("getcwd()", 0);
-					command_pwd(shp, data, sfd_client, lpwd);
+					command_pwd(sfd_client, &shp, lpwd);
 					break;
 				case CD:
-					if((x = chdir(shp->buffer)) == -1)
+					if((x = chdir(shp.buffer)) == -1)
 						fprintf(stderr, "Wrong path.\n");
-					command_cd(shp, data, sfd_client, x == -1 ? "fail" : "success");
+					command_cd(sfd_client, &shp, x == -1 ? "fail" : "success");
 					break;
 				case MKDIR:
-					command_mkdir(shp, data, sfd_client);
+					command_mkdir(sfd_client, &shp);
 					break;
 				case LS:
 					if(!getcwd(lpwd, sizeof lpwd))
 						er("getcwd()", 0);
-					command_ls(shp, data, sfd_client, lpwd);
+					command_ls(sfd_client, &shp, lpwd);
 					break;
 				case GET:
-					command_get(shp, data, sfd_client);
+					command_get(sfd_client, &shp);
 					break;
 				case PUT:
-					command_put(shp, data, sfd_client);
+					command_put(sfd_client, &shp);
 					break;
 				case RGET:
 					if(!getcwd(lpwd, sizeof lpwd))
 						er("getcwd()", 0);
-					command_rget(shp, data, sfd_client);
-					send_EOT(shp, data, sfd_client);
+					command_rget(sfd_client, &shp);
+					send_EOT(sfd_client, &shp);
 					if((x = chdir(lpwd)) == -1)
 						fprintf(stderr, "Wrong path.\n");
+					break;
 				default:
 					// print error
 					break;
 			}
-			/*
-			//send info and then proceed to complete the request
-			shp->type = INFO;
-			strcpy(path, shp->buffer);
-			sprintf(shp->buffer, "File found. Processing...");
-			data = htonp(shp);
-			if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-				er("send()", x);
-			
-			send_file(path, sfd_client, shp);
-			send_TERM(sfd_client, shp);
-			*/
 		}
 		else
 		{
 			//show error, send TERM and break
 			fprintf(stderr, "packet incomprihensible. closing connection.\n");
-			send_TERM(shp, data, sfd_client);
+			send_TERM(sfd_client, &shp);
 			break;
 		}
 	}

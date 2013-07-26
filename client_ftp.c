@@ -46,39 +46,39 @@ int main(int argc, char* argv[])
 		{
 			case GET:
 				if(cmd->npaths)
-					command_get(chp, data, sfd_client, *cmd->paths);
+					command_get(sfd_client, chp, *cmd->paths);
 				else
 					fprintf(stderr, "No path to file given.\n");
 				break;
 			case PUT:
 				if(cmd->npaths)
-					command_put(chp, data, sfd_client, *cmd->paths);
+					command_put(sfd_client, chp, *cmd->paths);
 				else
 					fprintf(stderr, "No path to file given.\n");
 				break;
 			case MGET:
 				if(cmd->npaths)
-					command_mget(chp, data, sfd_client, cmd->npaths, cmd->paths);
+					command_mget(sfd_client, chp, cmd->npaths, cmd->paths);
 				else
 					fprintf(stderr, "No path to file given.\n");
 				break;
 			case MPUT:
 				if(cmd->npaths)
-					command_mput(chp, data, sfd_client, cmd->npaths, cmd->paths);
+					command_mput(sfd_client, chp, cmd->npaths, cmd->paths);
 				else
 					fprintf(stderr, "No path to file given.\n");
 				break;
 			case MGETWILD:
-				command_mgetwild(chp, data, sfd_client);
+				command_mgetwild(sfd_client, chp);
 				break;
 			case MPUTWILD:
 				if(!getcwd(lpwd, sizeof lpwd))
 					er("getcwd()", 0);
-				command_mputwild(chp, data, sfd_client, lpwd);
+				command_mputwild(sfd_client, chp, lpwd);
 				break;
 			case CD:
 				if(cmd->npaths)
-					command_cd(chp, data, sfd_client, *cmd->paths);
+					command_cd(sfd_client, chp, *cmd->paths);
 				else
 					fprintf(stderr, "No path given.\n");
 				break;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 					fprintf(stderr, "No path given.\n");
 				break;
 			case PWD:
-				command_pwd(chp, data, sfd_client);
+				command_pwd(sfd_client, chp);
 				break;
 			case LPWD:
 				if(!getcwd(lpwd, sizeof lpwd))
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 				break;
 			case DIR_:
 			case LS:
-				command_ls(chp, data, sfd_client);
+				command_ls(sfd_client, chp);
 				break;
 			case LDIR:
 			case LLS:
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
 				break;
 			case MKDIR:
 				if(cmd->npaths)
-					command_mkdir(chp, data, sfd_client, *cmd->paths);
+					command_mkdir(sfd_client, chp, *cmd->paths);
 				else
 					fprintf(stderr, "No path to directory given.\n");
 				break;
@@ -121,14 +121,14 @@ int main(int argc, char* argv[])
 			case RGET:
 				if(!getcwd(lpwd, sizeof lpwd))
 					er("getcwd()", 0);
-				command_rget(chp, data, sfd_client);
+				command_rget(sfd_client, chp);
 				if((x = chdir(lpwd)) == -1)
 					fprintf(stderr, "Wrong path.\n");
 				break;
 			case RPUT:
 				if(!getcwd(lpwd, sizeof lpwd))
 					er("getcwd()", 0);
-				command_rput(chp, data, sfd_client);
+				command_rput(sfd_client, chp);
 				if((x = chdir(lpwd)) == -1)
 					fprintf(stderr, "Wrong path.\n");
 				break;

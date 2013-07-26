@@ -126,6 +126,16 @@ struct packet* htonp(struct packet*);
 
 void printpacket(struct packet*, int);
 
+/**
+ * if error occur, exit(-1)
+ */
+void send_packet(int sfd, struct packet* data);
+
+/**
+ * Returns the number read or exit(-1) for errors.
+ */
+int recv_packet(int sfd, struct packet* pkt);
+
 #define NCOMMANDS 19
 enum COMMAND
 	{

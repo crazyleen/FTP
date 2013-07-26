@@ -21,13 +21,14 @@ struct client_info
 	int cid;
 };
 
-struct client_info* client_info_alloc(int, int);
+struct client_info* client_info_alloc(int s, int c);
 
-void command_pwd(struct packet*, struct packet*, int, char*);
-void command_cd(struct packet*, struct packet*, int, char*);
-void command_ls(struct packet*, struct packet*, int, char*);
-void command_get(struct packet*, struct packet*, int);
-void command_put(struct packet*, struct packet*, int);
-void command_mkdir(struct packet*, struct packet*, int);
-void command_rget(struct packet*, struct packet*, int);
+void command_pwd(int sfd_client, struct packet* shp, char* lpwd);
+void command_cd(int sfd_client, struct packet* shp, char* message);
+void command_ls(int sfd_client, struct packet* shp, char* lpwd);
+void command_get(int sfd_client, struct packet* shp);
+void command_put(int sfd_client, struct packet* shp);
+void command_mkdir(int sfd_client, struct packet* shp);
+void command_rget(int sfd_client, struct packet* shp);
+
 

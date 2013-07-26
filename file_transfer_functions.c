@@ -2,25 +2,19 @@
 
 static size_t size_packet = sizeof(struct packet);
 
-void send_EOT(struct packet* hp, struct packet* data, int sfd)
+void send_EOT(int sfd, struct packet* hp)
 {
-	int x;
 	hp->type = EOT;
-	data = htonp(hp);
-	if((x = send(sfd, data, size_packet, 0)) != size_packet)
-		er("send()", x);
+	send_packet(sfd, hp);
 }
 
-void send_TERM(struct packet* hp, struct packet* data, int sfd)
+void send_TERM(int sfd, struct packet* hp)
 {
-	int x;
 	hp->type = TERM;
-	data = htonp(hp);
-	if((x = send(sfd, data, size_packet, 0)) != size_packet)
-		er("send()", x);
+	send_packet(sfd, hp);
 }
 
-void send_file(struct packet* hp, struct packet* data, int sfd, FILE* f)
+void send_file(int sfd, struct packet* hp, FILE* f)
 {
 	int x;
 	int i = 0, j = 0;
@@ -30,9 +24,7 @@ void send_file(struct packet* hp, struct packet* data, int sfd, FILE* f)
 		hp->datalen = fread(hp->buffer, 1, LENBUFFER - 1, f);
 		i += hp->datalen;
 		//printpacket(hp, HP);
-		data = htonp(hp);
-		if((x = send(sfd, data, size_packet, 0)) != size_packet)
-			er("send()", x);
+		send_packet(sfd, hp);
 		j++;
 	}
 	fprintf(stderr, "\t%d byte(s) read.\n", i);
@@ -40,22 +32,17 @@ void send_file(struct packet* hp, struct packet* data, int sfd, FILE* f)
 	fflush(stderr);
 }
 
-void receive_file(struct packet* hp, struct packet* data, int sfd, FILE* f)
+void receive_file(int sfd, struct packet* hp, FILE* f)
 {
 	int x;
 	int i = 0, j = 0;
-	if((x = recv(sfd, data, size_packet, 0)) <= 0)
-		er("recv()", x);
-	j++;
-	hp = ntohp(data);
+	recv_packet(sfd, hp);
 	//printpacket(hp, HP);
 	while(hp->type == DATA)
 	{
 		i += fwrite(hp->buffer, 1, hp->datalen, f);
-		if((x = recv(sfd, data, size_packet, 0)) <= 0)
-			er("recv()", x);
+		recv_packet(sfd, hp);
 		j++;
-		hp = ntohp(data);
 		//printpacket(hp, HP);
 	}
 	fprintf(stderr, "\t%d data packet(s) received.\n", --j);	// j decremented because the last packet is EOT.
