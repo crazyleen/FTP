@@ -1,35 +1,46 @@
+
+TOPDIR = $(shell pwd)
+BUILDDIR ?= $(TOPDIR)/obj
+PREFIX ?= $(TOPDIR)/bin
+
 #CROSS_COMPILE ?= arm-none-linux-gnueabi-
 #CROSS_COMPILE ?= arm-arago-linux-gnueabi-
 #CROSS_COMPILE ?= arm-linux-
 CC=$(CROSS_COMPILE)gcc
-CFLAGS = -g -I./
-SRCCLIENT = .
-SRCSERVER = .
-BINCLIENT = bin/client
-BINSERVER = bin/server
-OBJCLIENT = obj
-OBJSERVER = obj
-OBJECTSCLIENT = ${OBJCLIENT}/commons.o ${OBJCLIENT}/client_ftp_functions.o ${OBJCLIENT}/file_transfer_functions.o ${OBJCLIENT}/client_ftp.o
-OBJECTSSERVER = ${OBJSERVER}/commons.o ${OBJSERVER}/server_ftp_functions.o ${OBJSERVER}/file_transfer_functions.o ${OBJSERVER}/server_ftp.o
-EXECUTABLECLIENT = ${BINCLIENT}/client_ftp.out
-EXECUTABLESERVER = ${BINSERVER}/server_ftp.out
+CFLAGS = -g -Wall
+LDFLAGS := 
+LIBS :=
+INCLUDES := -I$(TOPDIR)
 
-all:	clean client server
+VPATH = $(BUILDDIR)
 
+#export 
+export CC
+export CFLAGS
+export INCLUDES
+export TOPDIR
+
+
+APP=client server
+all: $(APP) 
+
+OBJECTSCLIENT = commons.o client_ftp_functions.o file_transfer_functions.o client_ftp.o
 client:	${OBJECTSCLIENT}
-	${CC} ${CFLAGS} $^ -o ${EXECUTABLECLIENT}
+	@@cd $(BUILDDIR) && cd $(BUILDDIR) && $(CC) $(INCLUDES)  ${CFLAGS}  $^ -o $@ ${LDFLAGS}
 
+OBJECTSSERVER = commons.o server_ftp_functions.o file_transfer_functions.o server_ftp.o
 server:	${OBJECTSSERVER}
-	${CC} ${CFLAGS} $^ -o ${EXECUTABLESERVER}
+	@@cd $(BUILDDIR) && cd $(BUILDDIR) && $(CC) $(INCLUDES)  ${CFLAGS}  $^ -o $@ ${LDFLAGS}
+	
+.c.o:
+	@$(CC) -c $(CFLAGS) $(INCLUDES)   $< -o $(BUILDDIR)/$@
 
-${OBJCLIENT}/%.o:	${SRCCLIENT}/%.c
-	${CC} ${CFLAGS} -c $< -o $@
-
-${OBJSERVER}/%.o:	${SRCSERVER}/%.c
-	${CC} ${CFLAGS} -c $< -o $@
+install:
+	@cd $(BUILDDIR) && cp  $(APP) $(PREFIX)
+	
 
 clean:
-	rm -f ${OBJCLIENT}/*.o
-	rm -f ${OBJSERVER}/*.o
-	rm -f ${BINCLIENT}/*.out
-	rm -f ${BINSERVER}/*.out
+	@cd $(BUILDDIR) && rm -f *.o $(APP)
+	@cd $(PREFIX) && rm -f $(APP)
+
+.PHONY: clean install

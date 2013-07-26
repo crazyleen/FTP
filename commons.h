@@ -2,83 +2,14 @@
 #define COMMONS_H
 
 #include <arpa/inet.h>
-/*
-	for:
-		htons()
-		htonl()
-		ntohs()
-		inet_aton()
-		inet_ntoa()
-*/
-
 #include <netinet/in.h>
-/*
-	for:
-		inet_aton()
-		inet_ntoa()
-*/
-
 #include <sys/types.h>
-/*
-	for:
-		socket()
-		bind()
-		recvfrom()
-		sendto()
-		stat()
-*/
-
 #include <sys/socket.h>
-/*
-	for:
-		socket()
-		bind()
-		recvfrom()
-		sendto()
-		inet_aton()
-		inet_ntoa()
-		AF_INET
-		SOCK_DGRAM
-*/
-
 #include <errno.h>
-/*
-	for:
-		return type of system calls
-*/
-
 #include <stdio.h>
-/*
-	for:
-		printf()
-		sprintf()
-		fflush()
-		perror()
-*/
-
 #include <stdlib.h>
-/*
-	for:
-		exit()
-		malloc()
-*/
-
 #include <string.h>
-/*
-	for:
-		memset()
-		strlen()
-		strcpy()
-*/
-
 #include <unistd.h>
-/*
-	for:
-		close()
-		sleep()
-		stat()
-*/
-
 #include <dirent.h>
 
 #define	DEBUG		1
@@ -158,9 +89,9 @@ enum COMMAND
 		PWD,
 		LPWD,
 		EXIT
-	};			// any change made here should also be \
-				replicated accordingly in the commandlist \
-				2D array in client_ftp_fucntions.c
+	};			/* any change made here should also be
+				replicated accordingly in the commandlist
+				2D array in client_ftp_fucntions.c */
 
 #endif
 

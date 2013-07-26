@@ -123,5 +123,6 @@ void* serve_client(void* info)
 
 	close(sfd_client);
 	fflush(stdout);
+	return NULL;
 }
 

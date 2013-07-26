@@ -4,9 +4,9 @@ int main(int argc, char* argv[])
 {
 	//BEGIN: initialization
 	struct sockaddr_in sin_server;
-	int sfd_client, x;
-	size_t size_sockaddr = sizeof(struct sockaddr), size_packet = sizeof(struct packet);
-	short int connection_id;
+	int sfd_client;
+	int x = 0;
+	size_t size_sockaddr = sizeof(struct sockaddr);
 	struct packet chp;
 
 	char *server_ip = argv[1];
@@ -33,17 +33,19 @@ int main(int argc, char* argv[])
 	chp.conid = -1;
 	
 	struct command* cmd;
-	char lpwd[LENBUFFER], pwd[LENBUFFER];
+	char lpwd[LENBUFFER];
 	char userinput[LENUSERINPUT];
 	while(1)
 	{
 		printf("\t> ");
-		fgets(userinput, LENUSERINPUT, stdin);	// in order to give \
-					a filename with spaces, put ':' \
-					instead of ' '. If a command needs \
-					x paths, and y (y > x) paths are \
-					provided, y - x paths will be \
-					ignored.
+		fgets(userinput, LENUSERINPUT, stdin);
+					/* in order to give
+					 * a filename with spaces, put ':'
+					 * instead of ' '. If a command needs
+					 * x paths, and y (y > x) paths are
+					 * provided, y - x paths will be
+					 * ignored.
+					 * */
 		cmd = userinputtocommand(userinput);
 		if(!cmd)
 			continue;

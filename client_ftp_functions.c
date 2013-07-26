@@ -1,6 +1,5 @@
+#include <sys/stat.h>
 #include <client_ftp.h>
-
-static size_t size_packet = sizeof(struct packet);
 
 static const char commandlist[NCOMMANDS][10] =
 	{
@@ -32,9 +31,9 @@ static const char commandlist[NCOMMANDS][10] =
 		"lpwd",
 		
 		"exit"
-	};			// any change made here should also be \
-				replicated accordingly in the COMMANDS \
-				enum in commons.h
+	};			/* any change made here should also be
+				replicated accordingly in the COMMANDS
+				enum in commons.h */
 
 static void append_path(struct command* c, char* s)
 {
@@ -45,9 +44,10 @@ static void append_path(struct command* c, char* s)
 
 	char* temps = (char*) malloc((strlen(s) + 1) * sizeof(char));
 	int i;
-	for(i = 0; *(temps + i) = *(s + i) == ':' ? ' ' : *(s + i); i++)
-		;
-
+	//XXX: ugly code
+	for(i = 0; (*(temps + i) = *(s + i) == ':' ? ' ' : *(s + i)) != '\0'; i++) {
+		;//nothing
+	}
 	*(temppaths + c->npaths - 1) = temps;
 
 	c->paths = temppaths;
@@ -76,10 +76,10 @@ struct command* userinputtocommand(char s[LENUSERINPUT])
 					cmd->id = j;
 					break;
 				}
-			}// ommitting braces for the "for loop" here is \
-			 disastrous because the else below gets \
-			 associated with the "if inside the for loop". \
-			 #BUGFIX
+			}/* ommitting braces for the "for loop" here is
+			 disastrous because the else below gets
+			 associated with the "if inside the for loop".
+			 #BUGFIX */
 		else
 			append_path(cmd, token);
 	}
@@ -113,7 +113,6 @@ void printcommand(struct command* c)
 
 void command_pwd(int sfd_client, struct packet* chp)
 {
-	int x;
 	clear_packet(chp);
 	chp->type = REQU;
 	chp->comid = PWD;
@@ -127,7 +126,6 @@ void command_pwd(int sfd_client, struct packet* chp)
 
 void command_cd(int sfd_client, struct packet* chp, char* path)
 {
-	int x;
 	clear_packet(chp);
 	chp->type = REQU;
 	chp->comid = CD;
@@ -146,14 +144,13 @@ void command_lls(char* lpwd)
 	if(!d)
 		er("opendir()", (int) d);
 	struct dirent* e;
-	while(e = readdir(d))
+	while((e = readdir(d)) != NULL)
 		printf("\t%s\t%s\n", e->d_type == 4 ? "DIR:" : e->d_type == 8 ? "FILE:" : "UNDEF", e->d_name);
 	closedir(d);
 }
 
 void command_ls(int sfd_client, struct packet* chp)
 {
-	int x;
 	clear_packet(chp);
 	chp->type = REQU;
 	chp->comid = LS;
@@ -178,7 +175,6 @@ void command_get(int sfd_client, struct packet* chp, char* filename)
 		fprintf(stderr, "File could not be opened for writing. Aborting...\n");
 		return;
 	}
-	int x;
 	clear_packet(chp);
 	chp->type = REQU;
 	chp->comid = GET;
@@ -204,7 +200,6 @@ void command_put(int sfd_client, struct packet* chp, char* filename)
 		fprintf(stderr, "File could not be opened for reading. Aborting...\n");
 		return;
 	}
-	int x;
 	clear_packet(chp);
 	chp->type = REQU;
 	chp->comid = PUT;
@@ -254,7 +249,6 @@ void command_mput(int sfd_client, struct packet* chp, int n, char** filenames)
 
 void command_mgetwild(int sfd_client, struct packet* chp)
 {
-	int x;
 	clear_packet(chp);
 	chp->type = REQU;
 	chp->comid = LS;
@@ -283,7 +277,7 @@ void command_mputwild(int sfd_client, struct packet* chp, char* lpwd)
 	cmd->id = MPUTWILD;
 	cmd->npaths = 0;
 	cmd->paths = NULL;
-	while(e = readdir(d))
+	while((e = readdir(d)) != NULL)
 		if(e->d_type == 8)
 			append_path(cmd, e->d_name);
 	closedir(d);
@@ -295,7 +289,6 @@ void command_rput(int sfd_client, struct packet* chp)
 	static char lpwd[LENBUFFER];
 	if(!getcwd(lpwd, sizeof lpwd))
 		er("getcwd()", 0);
-	int x;
 	DIR* d = opendir(lpwd);
 	if(!d)
 		er("opendir()", (int) d);
@@ -304,7 +297,7 @@ void command_rput(int sfd_client, struct packet* chp)
 	cmd->id = RPUT;
 	cmd->npaths = 0;
 	cmd->paths = NULL;
-	while(e = readdir(d))
+	while((e = readdir(d)) != NULL)
 		if(e->d_type == 8)
 			append_path(cmd, e->d_name);
 		else if(e->d_type == 4 && strcmp(e->d_name, ".") && strcmp(e->d_name, ".."))
@@ -326,7 +319,6 @@ void command_rput(int sfd_client, struct packet* chp)
 void command_rget(int sfd_client, struct packet* chp)
 {
 	char temp[LENBUFFER];
-	int x;
 	clear_packet(chp);
 	chp->type = REQU;
 	chp->comid = RGET;
@@ -362,7 +354,6 @@ void command_rget(int sfd_client, struct packet* chp)
 
 void command_mkdir(int sfd_client, struct packet* chp, char* dirname)
 {
-	int x;
 	clear_packet(chp);
 	chp->type = REQU;
 	chp->comid = MKDIR;

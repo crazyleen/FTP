@@ -1,7 +1,5 @@
 #include <file_transfer_functions.h>
 
-static size_t size_packet = sizeof(struct packet);
-
 void send_EOT(int sfd, struct packet* hp)
 {
 	hp->type = EOT;
@@ -16,7 +14,6 @@ void send_TERM(int sfd, struct packet* hp)
 
 void send_file(int sfd, struct packet* hp, FILE* f)
 {
-	int x;
 	int i = 0, j = 0;
 	while(!feof(f))
 	{
@@ -34,7 +31,6 @@ void send_file(int sfd, struct packet* hp, FILE* f)
 
 void receive_file(int sfd, struct packet* hp, FILE* f)
 {
-	int x;
 	int i = 0, j = 0;
 	recv_packet(sfd, hp);
 	j++; //receive one data packet before loop
