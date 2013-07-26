@@ -37,6 +37,7 @@ void receive_file(int sfd, struct packet* hp, FILE* f)
 	int x;
 	int i = 0, j = 0;
 	recv_packet(sfd, hp);
+	j++; //receive one data packet before loop
 	//printpacket(hp, HP);
 	while(hp->type == DATA)
 	{

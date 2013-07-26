@@ -8,22 +8,29 @@ int main(int argc, char* argv[])
 	size_t size_sockaddr = sizeof(struct sockaddr), size_packet = sizeof(struct packet);
 	short int connection_id;
 	struct packet chp;
-	set0(&chp);
-	
+
+	char *server_ip = argv[1];
+	if(argc != 2) {
+		fprintf(stderr, "usage: %s <ip address>\n", argv[0]);
+		exit(1);
+	}
+
 	if((sfd_client = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 		er("socket()", x);
 	
 	memset((char*) &sin_server, 0, sizeof(struct sockaddr_in));
 	sin_server.sin_family = AF_INET;
-	sin_server.sin_addr.s_addr = inet_addr(IPSERVER);
+	sin_server.sin_addr.s_addr = inet_addr(server_ip);
 	sin_server.sin_port = htons(PORTSERVER);
 	
 	if((x = connect(sfd_client, (struct sockaddr*) &sin_server, size_sockaddr)) < 0)
 		er("connect()", x);
 			
-	printf(ID "FTP Client started up. Attempting communication with server @ %s:%d...\n\n", IPSERVER, PORTSERVER);
+	printf(ID "FTP Client started up. Attempting communication with server @ %s:%d...\n\n", server_ip, PORTSERVER);
 	//END: initialization
 
+	clear_packet(&chp);
+	chp.conid = -1;
 	
 	struct command* cmd;
 	char lpwd[LENBUFFER], pwd[LENBUFFER];

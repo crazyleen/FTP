@@ -1,11 +1,13 @@
 #include <commons.h>
 
-static size_t size_packet = sizeof(struct packet);
+static const size_t size_packet = sizeof(struct packet);
 
 
-void set0(struct packet* p)
+void clear_packet(struct packet* p)
 {
+	short int t = p->conid;
 	memset(p, 0, sizeof(struct packet));
+	p->conid = t;
 }
 
 struct packet* ntohp(struct packet* np)
@@ -32,16 +34,12 @@ void printpacket(struct packet* p, int ptype)
 		return;
 	
 	if(ptype)
-		printf("\t\tHOST PACKET\n");
+		printf("\t\tHP#");
 	else
-		printf("\t\tNETWORK PACKET\n");
+		printf("\t\tNP#");
 	
-	printf("\t\tconid = %d\n", p->conid);
-	printf("\t\ttype = %d\n", p->type);
-	printf("\t\tcomid = %d\n", p->comid);
-	printf("\t\tdatalen = %d\n", p->datalen);
-	printf("\t\tbuffer = %s\n", p->buffer);
-	
+	printf(" conid(%d) type(%d) comid(%d) datalen(%d)\n",
+			p->conid, p->type, p->comid, p->datalen);
 	fflush(stdout);
 }
 
@@ -54,6 +52,7 @@ void send_packet(int sfd, struct packet* hp)
 	int x;
 	struct packet pkt;
 	memcpy(&pkt, hp, size_packet);
+	//printpacket(&pkt, HP);
 	if((x = send(sfd, htonp(&pkt), size_packet, 0)) != size_packet)
 		er("send()", x);
 }
@@ -61,11 +60,17 @@ void send_packet(int sfd, struct packet* hp)
 /**
  * Returns the number read or exit(-1) for errors.
  */
-int recv_packet(int sfd, struct packet* pkt)
+void recv_packet(int sfd, struct packet* pkt)
 {
 	int x;
-	if((x = recv(sfd, pkt, size_packet, 0)) <= 0)
-		er("recv()", x);
+	unsigned char *p = (unsigned char *)pkt;
+	int rlen = size_packet;
+	while(rlen > 0) {
+		if((x = recv(sfd, p, rlen, 0)) <= 0)
+			er("recv()", x);
+		p += x;
+		rlen -= x;
+	}
 	ntohp(pkt);
-	return x;
+	//printpacket(pkt, NP);
 }

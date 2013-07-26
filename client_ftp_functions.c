@@ -114,9 +114,8 @@ void printcommand(struct command* c)
 void command_pwd(int sfd_client, struct packet* chp)
 {
 	int x;
-	set0(chp);
+	clear_packet(chp);
 	chp->type = REQU;
-	chp->conid = -1;
 	chp->comid = PWD;
 	send_packet(sfd_client, chp);
 	recv_packet(sfd_client, chp);
@@ -129,9 +128,8 @@ void command_pwd(int sfd_client, struct packet* chp)
 void command_cd(int sfd_client, struct packet* chp, char* path)
 {
 	int x;
-	set0(chp);
+	clear_packet(chp);
 	chp->type = REQU;
-	chp->conid = -1;
 	chp->comid = CD;
 	strcpy(chp->buffer, path);
 	send_packet(sfd_client, chp);
@@ -156,9 +154,8 @@ void command_lls(char* lpwd)
 void command_ls(int sfd_client, struct packet* chp)
 {
 	int x;
-	set0(chp);
+	clear_packet(chp);
 	chp->type = REQU;
-	chp->conid = -1;
 	chp->comid = LS;
 	send_packet(sfd_client, chp);
 	while(chp->type != EOT)
@@ -182,9 +179,8 @@ void command_get(int sfd_client, struct packet* chp, char* filename)
 		return;
 	}
 	int x;
-	set0(chp);
+	clear_packet(chp);
 	chp->type = REQU;
-	chp->conid = -1;
 	chp->comid = GET;
 	strcpy(chp->buffer, filename);
 	send_packet(sfd_client, chp);
@@ -209,9 +205,8 @@ void command_put(int sfd_client, struct packet* chp, char* filename)
 		return;
 	}
 	int x;
-	set0(chp);
+	clear_packet(chp);
 	chp->type = REQU;
-	chp->conid = -1;
 	chp->comid = PUT;
 	strcpy(chp->buffer, filename);
 	send_packet(sfd_client, chp);
@@ -260,9 +255,8 @@ void command_mput(int sfd_client, struct packet* chp, int n, char** filenames)
 void command_mgetwild(int sfd_client, struct packet* chp)
 {
 	int x;
-	set0(chp);
+	clear_packet(chp);
 	chp->type = REQU;
-	chp->conid = -1;
 	chp->comid = LS;
 	send_packet(sfd_client, chp);
 	struct command* cmd = (struct command*) malloc(sizeof(struct command));
@@ -333,9 +327,8 @@ void command_rget(int sfd_client, struct packet* chp)
 {
 	char temp[LENBUFFER];
 	int x;
-	set0(chp);
+	clear_packet(chp);
 	chp->type = REQU;
-	chp->conid = -1;
 	chp->comid = RGET;
 	send_packet(sfd_client, chp);
 	recv_packet(sfd_client, chp);
@@ -370,9 +363,8 @@ void command_rget(int sfd_client, struct packet* chp)
 void command_mkdir(int sfd_client, struct packet* chp, char* dirname)
 {
 	int x;
-	set0(chp);
+	clear_packet(chp);
 	chp->type = REQU;
-	chp->conid = -1;
 	chp->comid = MKDIR;
 	strcpy(chp->buffer, dirname);
 	send_packet(sfd_client, chp);

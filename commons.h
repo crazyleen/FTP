@@ -83,7 +83,7 @@
 
 #define	DEBUG		1
 
-#define	PORTSERVER	8487
+#define PORTSERVER	8487
 #define CONTROLPORT	PORTSERVER
 #define DATAPORT	(PORTSERVER + 1)
 
@@ -119,7 +119,7 @@ struct packet
 	char buffer[LENBUFFER];
 };
 
-void set0(struct packet*);
+void clear_packet(struct packet*);
 
 struct packet* ntohp(struct packet*);
 struct packet* htonp(struct packet*);
@@ -132,9 +132,9 @@ void printpacket(struct packet*, int);
 void send_packet(int sfd, struct packet* data);
 
 /**
- * Returns the number read or exit(-1) for errors.
+ * exit(-1) for errors.
  */
-int recv_packet(int sfd, struct packet* pkt);
+void recv_packet(int sfd, struct packet* pkt);
 
 #define NCOMMANDS 19
 enum COMMAND

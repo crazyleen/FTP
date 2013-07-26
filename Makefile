@@ -1,4 +1,7 @@
-CC = gcc
+#CROSS_COMPILE ?= arm-none-linux-gnueabi-
+#CROSS_COMPILE ?= arm-arago-linux-gnueabi-
+#CROSS_COMPILE ?= arm-linux-
+CC=$(CROSS_COMPILE)gcc
 CFLAGS = -g -I./
 SRCCLIENT = .
 SRCSERVER = .
