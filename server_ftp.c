@@ -50,7 +50,6 @@ int main(void)
 void* serve_client(void* info)
 {
 	int sfd_client, connection_id, x;
-	struct packet data;
 	struct packet shp;
 	char lpwd[LENBUFFER];
 	struct client_info* ci = (struct client_info*) info;

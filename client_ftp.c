@@ -7,11 +7,10 @@ int main(int argc, char* argv[])
 	int sfd_client, x;
 	size_t size_sockaddr = sizeof(struct sockaddr), size_packet = sizeof(struct packet);
 	short int connection_id;
-	struct packet* chp = (struct packet*) malloc(size_packet);		// client host packet
-	set0(chp);
-	struct packet* data;							// network packet
+	struct packet chp;
+	set0(&chp);
 	
-	if((x = sfd_client = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+	if((sfd_client = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 		er("socket()", x);
 	
 	memset((char*) &sin_server, 0, sizeof(struct sockaddr_in));
@@ -46,39 +45,39 @@ int main(int argc, char* argv[])
 		{
 			case GET:
 				if(cmd->npaths)
-					command_get(sfd_client, chp, *cmd->paths);
+					command_get(sfd_client, &chp, *cmd->paths);
 				else
 					fprintf(stderr, "No path to file given.\n");
 				break;
 			case PUT:
 				if(cmd->npaths)
-					command_put(sfd_client, chp, *cmd->paths);
+					command_put(sfd_client, &chp, *cmd->paths);
 				else
 					fprintf(stderr, "No path to file given.\n");
 				break;
 			case MGET:
 				if(cmd->npaths)
-					command_mget(sfd_client, chp, cmd->npaths, cmd->paths);
+					command_mget(sfd_client, &chp, cmd->npaths, cmd->paths);
 				else
 					fprintf(stderr, "No path to file given.\n");
 				break;
 			case MPUT:
 				if(cmd->npaths)
-					command_mput(sfd_client, chp, cmd->npaths, cmd->paths);
+					command_mput(sfd_client, &chp, cmd->npaths, cmd->paths);
 				else
 					fprintf(stderr, "No path to file given.\n");
 				break;
 			case MGETWILD:
-				command_mgetwild(sfd_client, chp);
+				command_mgetwild(sfd_client, &chp);
 				break;
 			case MPUTWILD:
 				if(!getcwd(lpwd, sizeof lpwd))
 					er("getcwd()", 0);
-				command_mputwild(sfd_client, chp, lpwd);
+				command_mputwild(sfd_client, &chp, lpwd);
 				break;
 			case CD:
 				if(cmd->npaths)
-					command_cd(sfd_client, chp, *cmd->paths);
+					command_cd(sfd_client, &chp, *cmd->paths);
 				else
 					fprintf(stderr, "No path given.\n");
 				break;
@@ -89,7 +88,7 @@ int main(int argc, char* argv[])
 					fprintf(stderr, "No path given.\n");
 				break;
 			case PWD:
-				command_pwd(sfd_client, chp);
+				command_pwd(sfd_client, &chp);
 				break;
 			case LPWD:
 				if(!getcwd(lpwd, sizeof lpwd))
@@ -98,7 +97,7 @@ int main(int argc, char* argv[])
 				break;
 			case DIR_:
 			case LS:
-				command_ls(sfd_client, chp);
+				command_ls(sfd_client, &chp);
 				break;
 			case LDIR:
 			case LLS:
@@ -108,7 +107,7 @@ int main(int argc, char* argv[])
 				break;
 			case MKDIR:
 				if(cmd->npaths)
-					command_mkdir(sfd_client, chp, *cmd->paths);
+					command_mkdir(sfd_client, &chp, *cmd->paths);
 				else
 					fprintf(stderr, "No path to directory given.\n");
 				break;
@@ -121,54 +120,26 @@ int main(int argc, char* argv[])
 			case RGET:
 				if(!getcwd(lpwd, sizeof lpwd))
 					er("getcwd()", 0);
-				command_rget(sfd_client, chp);
+				command_rget(sfd_client, &chp);
 				if((x = chdir(lpwd)) == -1)
 					fprintf(stderr, "Wrong path.\n");
 				break;
 			case RPUT:
 				if(!getcwd(lpwd, sizeof lpwd))
 					er("getcwd()", 0);
-				command_rput(sfd_client, chp);
+				command_rput(sfd_client, &chp);
 				if((x = chdir(lpwd)) == -1)
 					fprintf(stderr, "Wrong path.\n");
 				break;
 			case EXIT:
-				goto outside_client_command_loop;
+				goto main_exit;
 			default:
 				// display error
 				break;
 		}
 	}
-	outside_client_command_loop:
-	
-	/*
-	chp->type = REQU;
-	chp->conid = -1;
-	strcpy(path, argv[1]);
-	strcpy(chp->buffer, argv[1]);
-	//printpacket(chp, HP);
-	data = htonp(chp);
-	if((x = send(sfd_client, data, size_packet, 0)) != size_packet)
-		er("send()", x);
-	set0(data);
-	do
-	{
-		if((x = recv(sfd_client, data, size_packet, 0)) <= 0)
-			er("recv()", x);
-		chp = htonp(data);
-		if(chp->type == INFO)
-			printf(ID "Server says: %s\n", chp->buffer);
-		else if(chp->type == DATA)
-		{
-			//printpacket(chp, HP);
-			receive_file(extract_filename(path), sfd_client, chp);
-		}
-	}
-	while(chp->type != TERM);
-	
-	fprintf(stderr, "TERM received; exiting...\n");
-	*/
 
+main_exit:
 	close(sfd_client);
 	printf(ID "Done.\n");
 	fflush(stdout);
