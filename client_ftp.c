@@ -1,4 +1,14 @@
-#include <client_ftp.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include "ftp_packet.h"
+#include "client_ftp_functions.h"
 
 int main(int argc, char* argv[])
 {

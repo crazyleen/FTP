@@ -1,17 +1,5 @@
-#include <commons.h>
-#include <file_transfer_functions.h>
-
-#include <time.h>
-/*
-	for:
-		ctime()
-*/
-
-#include <sys/stat.h>
-/*
-	for:
-		stat()
-*/
+#ifndef SERVER_FTP_FUNCTIONS_H
+#define SERVER_FTP_FUNCTIONS_H
 
 #define	ID	"SERVER=> "
 
@@ -32,3 +20,4 @@ void command_mkdir(int sfd_client, struct packet* shp);
 void command_rget(int sfd_client, struct packet* shp);
 
 
+#endif

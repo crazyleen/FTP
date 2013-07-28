@@ -1,4 +1,11 @@
-#include <server_ftp.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include "ftp_packet.h"
+#include "file_transfer_functions.h"
+#include "server_ftp_functions.h"
 
 struct client_info* client_info_alloc(int s, int c)
 {

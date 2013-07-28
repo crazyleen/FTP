@@ -1,4 +1,9 @@
-#include <commons.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include "ftp_packet.h"
 
 static const size_t size_packet = sizeof(struct packet);
 

@@ -1,4 +1,7 @@
-#include <file_transfer_functions.h>
+#include <stdio.h>
+#include <string.h>
+#include "ftp_packet.h"
+#include "file_transfer_functions.h"
 
 void send_EOT(int sfd, struct packet* hp)
 {

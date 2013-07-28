@@ -1,8 +1,8 @@
-#include <commons.h>
-#include <file_transfer_functions.h>
+#ifndef CLIENT_FTP_FUNCTIONS_H
+#define CLIENT_FTP_FUNCTIONS_H
 
 #define IPSERVER	"127.0.0.1"
-#define	ID		"CLIENT=> "
+#define ID		"CLIENT=> "
 
 #define LENUSERINPUT	1024
 
@@ -33,3 +33,4 @@ void command_mkdir(int, struct packet*, char*);
 void command_rget(int, struct packet*);
 void command_rput(int, struct packet*);
 
+#endif

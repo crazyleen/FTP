@@ -1,16 +1,8 @@
 #ifndef COMMONS_H
 #define COMMONS_H
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-#include <dirent.h>
+#include <stdlib.h>
 
 #define	DEBUG		1
 
@@ -40,15 +32,15 @@ enum TYPE
 	}						\
 	while(0)
 
-#define	LENBUFFER	504		// so as to make the whole packet well-rounded ( = 512 bytes)
+#define LENBUFFER	496		// so as to make the whole packet well-rounded ( = 512 bytes)
 struct packet
 {
-	short int conid;
-	short int type;
-	short int comid;
-	short int datalen;
+	int32_t conid;
+	int32_t type;
+	int32_t comid;
+	int32_t datalen;
 	char buffer[LENBUFFER];
-};
+}__attribute__((__packed__));
 
 void clear_packet(struct packet*);
 

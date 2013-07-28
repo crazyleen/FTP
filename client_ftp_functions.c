@@ -1,5 +1,13 @@
+#include <sys/types.h>
 #include <sys/stat.h>
-#include <client_ftp.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <dirent.h>
+#include "ftp_packet.h"
+#include "file_transfer_functions.h"
+#include "client_ftp_functions.h"
 
 static const char commandlist[NCOMMANDS][10] =
 	{

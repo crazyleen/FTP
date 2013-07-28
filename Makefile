@@ -24,11 +24,11 @@ export TOPDIR
 APP=client server
 all: $(APP) 
 
-OBJECTSCLIENT = commons.o client_ftp_functions.o file_transfer_functions.o client_ftp.o
+OBJECTSCLIENT = ftp_packet.o client_ftp_functions.o file_transfer_functions.o client_ftp.o
 client:	${OBJECTSCLIENT}
 	@@cd $(BUILDDIR) && cd $(BUILDDIR) && $(CC) $(INCLUDES)  ${CFLAGS}  $^ -o $@ ${LDFLAGS}
 
-OBJECTSSERVER = commons.o server_ftp_functions.o file_transfer_functions.o server_ftp.o
+OBJECTSSERVER = ftp_packet.o server_ftp_functions.o file_transfer_functions.o server_ftp.o
 server:	${OBJECTSSERVER}
 	@@cd $(BUILDDIR) && cd $(BUILDDIR) && $(CC) $(INCLUDES)  ${CFLAGS}  $^ -o $@ ${LDFLAGS}
 	

@@ -1,4 +1,14 @@
-#include <server_ftp.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "ftp_packet.h"
+#include "file_transfer_functions.h"
+#include "server_ftp_functions.h"
 
 size_t size_sockaddr = sizeof(struct sockaddr), size_packet = sizeof(struct packet);
 
@@ -18,6 +28,9 @@ int main(void)
 	sin_server.sin_family = AF_INET;
 	sin_server.sin_port = htons(PORTSERVER);
 	sin_server.sin_addr.s_addr = htonl(INADDR_ANY);
+
+	int on = 1;
+	setsockopt(sfd_server, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 
 	if((x = bind(sfd_server, (struct sockaddr*) &sin_server, size_sockaddr)) < 0)
 		er("bind()", x);
@@ -67,7 +80,7 @@ void* serve_client(void* info)
 		
 		if(shp.type == TERM)
 			break;
-		
+
 		if(shp.conid == -1)
 			shp.conid = connection_id;
 		
