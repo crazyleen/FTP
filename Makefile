@@ -30,7 +30,7 @@ client:	${OBJECTSCLIENT}
 
 OBJECTSSERVER = ftp_packet.o server_ftp_functions.o file_transfer_functions.o server_ftp.o
 server:	${OBJECTSSERVER}
-	@@cd $(BUILDDIR) && cd $(BUILDDIR) && $(CC) $(INCLUDES)  ${CFLAGS}  $^ -o $@ ${LDFLAGS}
+	@@cd $(BUILDDIR) && cd $(BUILDDIR) && $(CC) $(INCLUDES)  ${CFLAGS}  $^ -o $@ ${LDFLAGS} -lpthread
 	
 .c.o:
 	@$(CC) -c $(CFLAGS) $(INCLUDES)   $< -o $(BUILDDIR)/$@

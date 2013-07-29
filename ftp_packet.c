@@ -63,7 +63,7 @@ void send_packet(int sfd, struct packet* hp)
 }
 
 /**
- * Returns the number read or exit(-1) for errors.
+ * read one packet, exit(-1) for errors.
  */
 void recv_packet(int sfd, struct packet* pkt)
 {
@@ -78,4 +78,23 @@ void recv_packet(int sfd, struct packet* pkt)
 	}
 	ntohp(pkt);
 	//printpacket(pkt, NP);
+}
+
+/**
+ * 0 on success, or -1 for errors.
+ */
+int recv_packet_ret(int sfd, struct packet* pkt)
+{
+	int x;
+	unsigned char *p = (unsigned char *)pkt;
+	int rlen = size_packet;
+	while(rlen > 0) {
+		if((x = recv(sfd, p, rlen, 0)) <= 0)
+			return -1;
+		p += x;
+		rlen -= x;
+	}
+	ntohp(pkt);
+	//printpacket(pkt, NP);
+	return 0;
 }

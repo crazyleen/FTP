@@ -59,6 +59,11 @@ void send_packet(int sfd, struct packet* data);
  */
 void recv_packet(int sfd, struct packet* pkt);
 
+/**
+ * 0 on success, or -1 for errors.
+ */
+int recv_packet_ret(int sfd, struct packet* pkt);
+
 #define NCOMMANDS 19
 enum COMMAND
 	{
