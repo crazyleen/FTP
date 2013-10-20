@@ -106,9 +106,7 @@ struct command* userinputtocommand(char s[LENUSERINPUT])
 
 void printcommand(struct command* c)
 {
-	if(!DEBUG)
-		return;
-	
+
 	printf("\t\tPrinting contents of the above command...\n");
 	printf("\t\tid = %d\n", c->id);
 	printf("\t\tnpaths = %d\n", c->npaths);
@@ -138,6 +136,7 @@ void command_cd(int sfd_client, struct packet* chp, char* path)
 	chp->type = REQU;
 	chp->comid = CD;
 	strcpy(chp->buffer, path);
+	chp->datalen = strlen(chp->buffer) + 1;
 	send_packet(sfd_client, chp);
 	recv_packet(sfd_client, chp);
 	if(chp->type == INFO && chp->comid == CD && !strcmp(chp->buffer, "success"))
@@ -187,6 +186,7 @@ void command_get(int sfd_client, struct packet* chp, char* filename)
 	chp->type = REQU;
 	chp->comid = GET;
 	strcpy(chp->buffer, filename);
+	chp->datalen = strlen(chp->buffer) + 1;
 	send_packet(sfd_client, chp);
 	recv_packet(sfd_client, chp);
 	//printpacket(chp, HP);
@@ -212,6 +212,7 @@ void command_put(int sfd_client, struct packet* chp, char* filename)
 	chp->type = REQU;
 	chp->comid = PUT;
 	strcpy(chp->buffer, filename);
+	chp->datalen = strlen(chp->buffer) + 1;
 	send_packet(sfd_client, chp);
 	recv_packet(sfd_client, chp);
 	//printpacket(chp, HP);
@@ -270,6 +271,7 @@ void command_mgetwild(int sfd_client, struct packet* chp)
 		if(chp->type == DATA && chp->comid == LS && strlen(chp->buffer))
 		if(*chp->buffer == 'F')
 			append_path(cmd, chp->buffer + 6);
+		chp->datalen = strlen(chp->buffer) + 1;
 		send_packet(sfd_client, chp);
 	}
 	command_mget(sfd_client, chp, cmd->npaths, cmd->paths);

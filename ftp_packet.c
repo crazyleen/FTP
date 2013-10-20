@@ -5,8 +5,13 @@
 #include <netinet/in.h>
 #include "ftp_packet.h"
 
-static const size_t size_packet = sizeof(struct packet);
+//#define	DEBUG
+#undef	DEBUG
+#define PKT_HEAD_LEN (sizeof(struct packet) - LENBUFFER)
 
+static int packet_len(struct packet *hp) {
+	return hp->datalen + PKT_HEAD_LEN;
+}
 
 void clear_packet(struct packet* p)
 {
@@ -33,61 +38,51 @@ struct packet* htonp(struct packet* hp)
 	return hp;
 }
 
-void printpacket(struct packet* p, int ptype)
+static void dump(const char *msg, const void *buf, int len) {
+	int i;
+	const unsigned char *packet = (const unsigned char *) buf;
+	printf("%s", msg);
+	for (i = 0; i < len; i++)
+		printf(" %02x", packet[i]);
+	putchar('\n');
+}
+
+void printpacket(const char *msg, const struct packet* p)
 {
-	if(!DEBUG)
-		return;
-	
-	if(ptype)
-		printf("\t\tHP#");
-	else
-		printf("\t\tNP#");
-	
-	printf(" conid(%d) type(%d) comid(%d) datalen(%d)\n",
+	printf("%s: conid(%d) type(%d) comid(%d) datalen(%d)\n", msg,
 			p->conid, p->type, p->comid, p->datalen);
+	dump("data:", p->buffer, p->datalen);
 	fflush(stdout);
 }
 
 
 /**
- * if error occur, exit(-1)
+ * 0 success, -1 error
  */
-void send_packet(int sfd, struct packet* hp)
+int send_packet(int sfd, struct packet* hp)
 {
-	int x;
+	int len;
 	struct packet pkt;
-	memcpy(&pkt, hp, size_packet);
-	//printpacket(&pkt, HP);
-	if((x = send(sfd, htonp(&pkt), size_packet, 0)) != size_packet)
-		er("send()", x);
+
+	len = packet_len(hp);
+	memcpy(&pkt, hp, len);
+#ifdef	DEBUG
+	printpacket("send", &pkt);
+#endif
+	if((send(sfd, htonp(&pkt), len, 0)) != len)
+		return -1;
+
+	return 0;
 }
 
 /**
- * read one packet, exit(-1) for errors.
+ * read packet header, 0 success, -1 error
  */
-void recv_packet(int sfd, struct packet* pkt)
+static int recv_packet_header(int sfd, struct packet* pkt)
 {
 	int x;
 	unsigned char *p = (unsigned char *)pkt;
-	int rlen = size_packet;
-	while(rlen > 0) {
-		if((x = recv(sfd, p, rlen, 0)) <= 0)
-			er("recv()", x);
-		p += x;
-		rlen -= x;
-	}
-	ntohp(pkt);
-	//printpacket(pkt, NP);
-}
-
-/**
- * 0 on success, or -1 for errors.
- */
-int recv_packet_ret(int sfd, struct packet* pkt)
-{
-	int x;
-	unsigned char *p = (unsigned char *)pkt;
-	int rlen = size_packet;
+	int rlen = PKT_HEAD_LEN;
 	while(rlen > 0) {
 		if((x = recv(sfd, p, rlen, 0)) <= 0)
 			return -1;
@@ -95,6 +90,41 @@ int recv_packet_ret(int sfd, struct packet* pkt)
 		rlen -= x;
 	}
 	ntohp(pkt);
-	//printpacket(pkt, NP);
 	return 0;
 }
+
+/**
+ * 0 on success, or -1 for errors.
+ */
+static int recv_packet_data(int sfd, struct packet* pkt)
+{
+	int x;
+	unsigned char *p = (unsigned char *)pkt->buffer;
+	int rlen = pkt->datalen;
+	while(rlen > 0) {
+		if((x = recv(sfd, p, rlen, 0)) <= 0)
+			return -1;
+		p += x;
+		rlen -= x;
+	}
+	return 0;
+}
+
+/**
+ * 0 on success, or -1 for errors.
+ */
+int recv_packet(int sfd, struct packet* pkt)
+{
+	if (recv_packet_header(sfd, pkt) != 0)
+		return -1;
+	if (pkt->datalen > 0)
+		if (recv_packet_data(sfd, pkt) != 0)
+			return -1;
+
+#ifdef	DEBUG
+	printpacket("recv", pkt);
+#endif
+
+	return 0;
+}
+

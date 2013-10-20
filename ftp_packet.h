@@ -4,13 +4,14 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#define	DEBUG		1
 
 #define PORTSERVER	8487
 #define CONTROLPORT	PORTSERVER
 #define DATAPORT	(PORTSERVER + 1)
 
-enum TYPE
+#define er(x, y) do { exit(y); } while(0)
+
+enum PKT_TYPE
 	{
 		REQU,
 		DONE,
@@ -20,19 +21,8 @@ enum TYPE
 		EOT
 	};
 
-#define	NP		0
-#define	HP		1
-
-#define	er(e, x)					\
-	do						\
-	{						\
-		perror("ERROR IN: " #e "\n");		\
-		fprintf(stderr, "%d\n", x);		\
-		exit(-1);				\
-	}						\
-	while(0)
-
 #define LENBUFFER	496		// so as to make the whole packet well-rounded ( = 512 bytes)
+
 struct packet
 {
 	int32_t conid;
@@ -47,25 +37,20 @@ void clear_packet(struct packet*);
 struct packet* ntohp(struct packet*);
 struct packet* htonp(struct packet*);
 
-void printpacket(struct packet*, int);
+void printpacket(const char *msg, const struct packet* p);
 
 /**
- * if error occur, exit(-1)
+ * 0 on success, -1 on error
  */
-void send_packet(int sfd, struct packet* data);
-
-/**
- * exit(-1) for errors.
- */
-void recv_packet(int sfd, struct packet* pkt);
+int send_packet(int sfd, struct packet* data);
 
 /**
  * 0 on success, or -1 for errors.
  */
-int recv_packet_ret(int sfd, struct packet* pkt);
+int recv_packet(int sfd, struct packet* pkt);
 
 #define NCOMMANDS 19
-enum COMMAND
+enum PKT_COMMAND
 	{
 		GET,
 		PUT,
@@ -75,7 +60,7 @@ enum COMMAND
 		LCD,
 		MGETWILD,
 		MPUTWILD,
-		DIR_,		// _ to avoid conflict with directory pointer DIR
+		DIR_,
 		LDIR,
 		LS,
 		LLS,
@@ -86,9 +71,7 @@ enum COMMAND
 		PWD,
 		LPWD,
 		EXIT
-	};			/* any change made here should also be
-				replicated accordingly in the commandlist
-				2D array in client_ftp_fucntions.c */
+	};
 
 #endif
 

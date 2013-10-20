@@ -253,7 +253,7 @@ void* serve_client(void* info)
 	
 	while(1)
 	{
-		if(recv_packet_ret(sfd_client, &shp) < 0)
+		if(recv_packet(sfd_client, &shp) < 0)
 		{
 			fprintf(stderr, "client ID(%d) closed/terminated. closing connection.\n", connection_id);
 			break;

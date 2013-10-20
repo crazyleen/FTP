@@ -6,12 +6,14 @@
 void send_EOT(int sfd, struct packet* hp)
 {
 	hp->type = EOT;
+	hp->datalen = 0;
 	send_packet(sfd, hp);
 }
 
 void send_TERM(int sfd, struct packet* hp)
 {
 	hp->type = TERM;
+	hp->datalen = 0;
 	send_packet(sfd, hp);
 }
 
@@ -23,7 +25,6 @@ void send_file(int sfd, struct packet* hp, FILE* f)
 		memset(hp->buffer, '\0', sizeof(char) * LENBUFFER);
 		hp->datalen = fread(hp->buffer, 1, LENBUFFER - 1, f);
 		i += hp->datalen;
-		//printpacket(hp, HP);
 		send_packet(sfd, hp);
 		j++;
 	}
